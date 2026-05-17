@@ -1,3 +1,3 @@
-module github.com/beevk/pokedex
+module github.com/tunerainfall/pokedex
 
 go 1.23.4

@@ -6,15 +6,18 @@ import (
 	"os"
 	"strings"
 
-	"github.com/beevk/pokedex/config"
+	"github.com/tunerainfall/pokedex/config"
 )
+
+type Command interface {
+	Execute(cfg *config.Config, params ...string) error
+}
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config.Config) error
+	callback    Command
 }
-
 
 func NewRepl(c *config.Config) {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -36,11 +39,12 @@ func NewRepl(c *config.Config) {
 
 		// fmt.Printf("Your command was: %s\n", cleanText[0])
 		cmd := cleanText[0]
+		params := cleanText[1:]
 
-		if value, ok := commands[cmd]; !ok {
+		if v, ok := commands[cmd]; !ok {
 			fmt.Println("Unknown command")
 		} else {
-			if err := value.callback(c); err != nil {
+			if err := v.callback.Execute(c, params...); err != nil {
 				fmt.Printf("Error encountered while running %s command: %s\n", cmd, err)
 			}
 		}
@@ -57,22 +61,42 @@ func getCommands() map[string]cliCommand {
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
-			callback:    commandExit,
+			callback:    ExitCommand{},
 		},
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
-			callback:    commandHelp,
+			callback:    HelpCommand{},
 		},
 		"map": {
 			name:        "map",
 			description: "It displays the names of 20 location areas in the Pokemon world. Next call should display next 20 locations.",
-			callback:    commandMap,
+			callback:    MapCommand{},
 		},
 		"mapb": {
 			name:        "mapb",
 			description: "It displays the names of previous 20 location areas in the Pokemon world. Next call should display another previous 20 locations.",
-			callback:    commandMapb,
+			callback:    MapBCommand{},
+		},
+		"explore": {
+			name:        "explore",
+			description: "It list of all the Pokémon located in a particular area. It takes an area as a parameter: `explore <area-name>`",
+			callback:    ExploreCommand{},
+		},
+		"catch": {
+			name:        "catch",
+			description: "It tries to catches the Pokémon by name. It takes a pokemon name as a parameter: `catch <pokemon-name>`",
+			callback:    CatchCommand{},
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "It lists the details of a caught pokemon. It takes a pokemon name as a parameter: `inspect <pokemon-name>`",
+			callback:    InspectCommand{},
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "It lists all the pokemons in your inventory that you've caught.",
+			callback:    PokedexCommand{},
 		},
 	}
 }

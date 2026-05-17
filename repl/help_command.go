@@ -3,10 +3,12 @@ package repl
 import (
 	"fmt"
 
-	"github.com/beevk/pokedex/config"
+	"github.com/tunerainfall/pokedex/config"
 )
 
-func commandHelp(c *config.Config) error {
+type HelpCommand struct{}
+
+func (h HelpCommand) Execute(c *config.Config, _ ...string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Print("\n")

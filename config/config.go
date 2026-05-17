@@ -1,15 +1,28 @@
 package config
 
 import (
-	"github.com/beevk/pokedex/internal/pokeapi"
+	"github.com/tunerainfall/pokedex/internal/pokeapi"
 )
 
-type AreaGetter interface {
-	GetArea(url string) (pokeapi.Area, error)
+type Pokemon interface {
+	GetArea(url string) (pokeapi.AreaResponse, error)
+	GetPokemons(city string) (pokeapi.PokemonAreaResponse, error)
+	CatchPokemon(name string) (pokeapi.PokemonResponse, error)
+}
+
+type Storage interface {
+	Add(name string, p pokeapi.PokemonResponse) error
+	Get(name string) (pokeapi.PokemonResponse, bool)
+	GetAll() map[string]pokeapi.PokemonResponse
+}
+
+type ReplState struct {
+	Next     *string `json:"next"`
+	Previous *string `json:"previous"`
 }
 
 type Config struct {
-	Areas    AreaGetter
-	Next     *string `json:"next"`
-	Previous *string `json:"previous"`
+	PokemonService Pokemon
+	Storage        Storage
+	State          ReplState
 }

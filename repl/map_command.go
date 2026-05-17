@@ -3,18 +3,20 @@ package repl
 import (
 	"fmt"
 
-	"github.com/beevk/pokedex/config"
+	"github.com/tunerainfall/pokedex/config"
 )
 
-func commandMap(cfg *config.Config) error {
-	url := *cfg.Next
-	data, err := cfg.Areas.GetArea(url)
+type MapCommand struct{}
+
+func (m MapCommand) Execute(cfg *config.Config, _ ...string) error {
+	url := *cfg.State.Next
+	data, err := cfg.PokemonService.GetArea(url)
 	if err != nil {
 		return err
 	}
 
-	cfg.Next = data.Next
-	cfg.Previous = data.Previous
+	cfg.State.Next = data.Next
+	cfg.State.Previous = data.Previous
 
 	for _, city := range data.Results {
 		fmt.Println(city.Name)
@@ -23,19 +25,21 @@ func commandMap(cfg *config.Config) error {
 	return nil
 }
 
-func commandMapb(cfg *config.Config) error {
-	if cfg.Previous == nil {
+type MapBCommand struct{}
+
+func (m MapBCommand) Execute(cfg *config.Config, _ ...string) error {
+	if cfg.State.Previous == nil {
 		fmt.Println("you're on the first page")
 		return nil
 	}
 
-	data, err := cfg.Areas.GetArea(*cfg.Previous)
+	data, err := cfg.PokemonService.GetArea(*cfg.State.Previous)
 	if err != nil {
 		return err
 	}
 
-	cfg.Next = data.Next
-	cfg.Previous = data.Previous
+	cfg.State.Next = data.Next
+	cfg.State.Previous = data.Previous
 
 	for _, city := range data.Results {
 		fmt.Println(city.Name)

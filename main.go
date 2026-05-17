@@ -3,11 +3,12 @@ package main
 import (
 	"time"
 
-	"github.com/beevk/pokedex/config"
-	"github.com/beevk/pokedex/internal/pokeapi"
-	"github.com/beevk/pokedex/internal/pokecache"
-	"github.com/beevk/pokedex/internal/pokeservice"
-	"github.com/beevk/pokedex/repl"
+	"github.com/tunerainfall/pokedex/config"
+	"github.com/tunerainfall/pokedex/internal/pokeapi"
+	"github.com/tunerainfall/pokedex/internal/pokecache"
+	"github.com/tunerainfall/pokedex/internal/pokeservice"
+	"github.com/tunerainfall/pokedex/internal/pokestorage"
+	"github.com/tunerainfall/pokedex/repl"
 )
 
 func toPointer[T any](t T) *T {
@@ -22,11 +23,17 @@ func main() {
 		panic("failed to initialize cache %s")
 	}
 
-	areas := pokeservice.NewService(client, cache)
+	store := pokestorage.NewStore()
+	service := pokeservice.NewService(client, cache)
+
+	state := config.ReplState{
+		Next: toPointer(pokeapi.LocationURL),
+	}
 
 	cfg := &config.Config{
-		Areas: areas,
-		Next:  toPointer(pokeapi.BaseURL),
+		PokemonService: service,
+		State:          state,
+		Storage:        store,
 	}
 
 	repl.NewRepl(cfg)

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/beevk/pokedex/config"
+	"github.com/tunerainfall/pokedex/config"
 )
 
-func commandExit(c *config.Config) error {
+type ExitCommand struct{}
+
+func (_ ExitCommand) Execute(c *config.Config, _ ...string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 
